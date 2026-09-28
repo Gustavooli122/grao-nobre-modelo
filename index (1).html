@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Grão Nobre — cafeteria artesanal, cafés especiais e momentos únicos." />
+  <title>Grão Nobre | Cafeteria</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { coffee: '#1d0e08', cream: '#fbf7ef', gold: '#d99a55', caramel: '#b86f31' },
+          fontFamily: { serif: ['Georgia', 'serif'], sans: ['Inter', 'Arial', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #fbf7ef; color: #1f130e; margin: 0; width: 100%; overflow-x: hidden; }
+    
+    /* Animações de página */
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-bg { background: linear-gradient(90deg, rgba(15, 7, 3, 0.92) 0%, rgba(15, 7, 3, 0.58) 48%, rgba(15, 7, 3, 0.12) 100%), url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1800&q=88') center/cover; }
+    .about-bg { background: linear-gradient(90deg, rgba(16, 7, 3, 0.88), rgba(16, 7, 3, 0.25)), url('https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1800&q=85') center/cover; }
+    .confirm-bg { background: linear-gradient(rgba(18, 8, 3, 0.65), rgba(18, 8, 3, 0.65)), url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1800&q=85') center/cover; }
+    .notfound-bg { background: linear-gradient(rgba(15, 7, 3, 0.55), rgba(15, 7, 3, 0.55)), url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1800&q=85') center/cover; }
+
+    .nav-link { transition: color 0.2s ease; }
+    .nav-link.active { color: #e4ad69; font-weight: 600; }
+    .card-img { aspect-ratio: 4/3; object-fit: cover; }
+    .gallery-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+    .gallery-item:hover .gallery-img { transform: scale(1.05); }
+
+    input, textarea, select { outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    input:focus, textarea:focus, select:focus { border-color: #b86f31 !important; box-shadow: 0 0 0 3px rgba(184, 111, 49, 0.2); }
+
+    /* Efeitos e Animações dos Botões */
+    .btn-add-cart {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-add-cart:hover {
+      transform: scale(1.1);
+      background-color: #3e1f10;
+      box-shadow: 0 4px 12px rgba(43, 21, 11, 0.3);
+    }
+    .btn-add-cart:active {
+      transform: scale(0.92);
+    }
+
+    /* Animação do Badge do Carrinho */
+    .cart-badge-bounce {
+      animation: badgeBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes badgeBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+
+    @media(max-width:767px) {
+      .hero-bg { background-position: 62% center; }
+      .desktop-nav { display: none; }
+      .mobile-menu.open { display: flex; }
+    }
+  </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col justify-between">
+
+  <!-- CABEÇALHO -->
+  <header class="sticky top-0 z-50 bg-[#120a06] text-white border-b border-[#3d2b20]">
+    <div class="max-w-6xl mx-auto h-16 px-4 flex items-center justify-between">
+
+      <button onclick="showPage('home')" class="flex items-center gap-2 group">
+        <span class="text-2xl text-[#e7b56f] group-hover:rotate-12 transition-transform duration-300">♨</span>
+        <span class="font-serif text-lg">Grão <span class="text-[#e7b56f]">Nobre</span></span>
+      </button>
+
+      <nav class="desktop-nav md:flex items-center gap-7 text-sm">
+        <button data-nav="home" onclick="showPage('home')" class="nav-link">Início</button>
+        <button data-nav="menu" onclick="showPage('menu')" class="nav-link">Cardápio</button>
+        <button data-nav="about" onclick="showPage('about')" class="nav-link">Sobre</button>
+        <button data-nav="gallery" onclick="showPage('gallery')" class="nav-link">Galeria</button>
+        <button data-nav="contact" onclick="showPage('contact')" class="nav-link">Contato</button>
+      </nav>
+
+      <div class="flex items-center gap-4">
+        <button onclick="showPage('menu')" class="hover:text-[#e7b56f] transition" aria-label="Pesquisar">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+
+        <!-- Novo Ícone de Carrinho Vetorial em SVG -->
+        <button onclick="showPage('cart')" class="relative hover:text-[#e7b56f] transition p-1" aria-label="Carrinho">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+          </svg>
+          <span id="cartBadge" class="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-[#d99a55] text-[#1d0e08] text-[10px] font-bold flex items-center justify-center">0</span>
+        </button>
+
+        <button id="menuBtn" class="md:hidden text-2xl" onclick="toggleMobile()">☰</button>
+      </div>
+
+    </div>
+
+    <!-- Menu Mobile -->
+    <div id="mobileMenu" class="mobile-menu flex flex-col px-5 pb-4 gap-3 text-sm bg-[#120a06] border-b border-[#3d2b20]">
+      <button class="text-left py-1" onclick="showPage('home')">Início</button>
+      <button class="text-left py-1" onclick="showPage('menu')">Cardápio</button>
+      <button class="text-left py-1" onclick="showPage('about')">Sobre</button>
+      <button class="text-left py-1" onclick="showPage('gallery')">Galeria</button>
+      <button class="text-left py-1" onclick="showPage('contact')">Contato</button>
+    </div>
+  </header>
+
+  <main class="flex-grow">
+
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <div class="hero-bg min-h-[590px] md:min-h-[650px] flex items-center text-white">
+        <div class="max-w-6xl mx-auto w-full px-5 md:px-8">
+          <div class="max-w-xl">
+            <p class="text-[#e5ad68] uppercase tracking-[.28em] text-xs mb-4">Café artesanal • desde 2021</p>
+            <h1 class="font-serif text-5xl md:text-7xl leading-[.98] mb-6">Mais do que café,<br>é um <em class="text-[#e7b56f]">momento.</em></h1>
+            <p class="text-white/80 text-base md:text-lg leading-relaxed max-w-lg">Na Grão Nobre, cada xícara é preparada com cuidado, para tornar o seu dia mais especial.</p>
+            <div class="flex gap-3 mt-8">
+              <button onclick="showPage('menu')" class="bg-[#e7b56f] hover:bg-[#f0c587] text-[#26140b] font-semibold rounded-lg px-6 py-3 transition duration-200 transform hover:-translate-y-0.5">Ver Cardápio</button>
+              <button onclick="showPage('about')" class="border border-white/30 hover:bg-white/10 rounded-lg px-6 py-3 transition">Conheça-nos</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-5 py-14">
+        <div class="text-center mb-8">
+          <h2 class="font-serif text-3xl md:text-4xl">Nossos Destaques</h2>
+          <p class="text-stone-500 mt-2">Sabores escolhidos para transformar a sua pausa.</p>
+        </div>
+        <div id="featured" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+      </div>
+    </section>
+
+    <!-- CARDÁPIO -->
+    <section id="menu" class="page">
+      <div class="max-w-6xl mx-auto px-5 py-10">
+        <h1 class="font-serif text-4xl md:text-5xl">Nosso <span class="text-[#8b4a24]">Cardápio</span></h1>
+        <p class="text-stone-500 mt-2">Cafés especiais, bebidas, lanches e doces, para todos.</p>
+        <div id="filters" class="flex flex-wrap gap-2 my-8"></div>
+        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"></div>
+      </div>
+    </section>
+
+    <!-- SOBRE -->
+    <section id="about" class="page">
+      <div class="about-bg text-white min-h-[510px] flex items-center">
+        <div class="max-w-6xl mx-auto w-full px-5 py-16">
+          <div class="max-w-2xl">
+            <h1 class="font-serif text-5xl md:text-6xl">Mais que café,<br><span class="text-[#e7b56f]">pessoas.</span></h1>
+            <p class="mt-5 text-white/80 max-w-xl">A Grão Nobre nasceu do desejo de criar um espaço acolhedor, onde cada encontro se torna memória e cada café conta uma história.</p>
+            <div class="grid grid-cols-3 mt-12 divide-x divide-white/20">
+              <div><b class="font-serif text-3xl text-[#efc287]">+5</b><p class="text-xs text-white/65 mt-1">anos de história</p></div>
+              <div class="pl-6"><b class="font-serif text-3xl text-[#efc287]">+50 mil</b><p class="text-xs text-white/65 mt-1">xícaras servidas</p></div>
+              <div class="pl-6"><b class="font-serif text-3xl text-[#efc287]">100%</b><p class="text-xs text-white/65 mt-1">paixão por café</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="max-w-6xl mx-auto px-5 py-14 grid md:grid-cols-2 gap-9 items-center">
+        <div>
+          <h2 class="font-serif text-4xl">Nossa História</h2>
+          <p class="mt-4 text-stone-600 leading-7">A Grão Nobre surgiu de um sonho simples: servir cafés de qualidade em um ambiente onde todo mundo pudesse se sentir em casa. Selecionamos grãos especiais, valorizamos pequenos produtores e cuidamos de cada detalhe — da moagem ao sorriso no balcão.</p>
+          <p class="mt-4 text-stone-600 leading-7">Hoje, seguimos com a mesma ideia: criar bons momentos em torno de uma boa xícara.</p>
+        </div>
+        <img class="rounded-2xl w-full h-72 object-cover shadow-lg" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1000&q=85" alt="Interior da cafeteria">
+      </div>
+    </section>
+
+    <!-- GALERIA -->
+    <section id="gallery" class="page">
+      <div class="max-w-6xl mx-auto px-5 py-10">
+        <h1 class="font-serif text-4xl md:text-5xl">Momentos em <span class="text-[#8b4a24]">Imagens</span></h1>
+        <p class="text-stone-500 mt-2">Um olhar sobre o que torna a Grão Nobre especial.</p>
+        <div id="galleryFilters" class="flex flex-wrap gap-2 my-8"></div>
+        <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3 auto-rows-[190px] md:auto-rows-[260px]"></div>
+      </div>
+    </section>
+
+    <!-- CONTATO -->
+    <section id="contact" class="page">
+      <div class="max-w-6xl mx-auto min-h-[650px] grid md:grid-cols-2">
+        <div class="px-5 md:px-10 py-12">
+          <h1 class="font-serif text-5xl">Fale Conosco</h1>
+          <p class="text-stone-500 mt-2">Estamos sempre prontos para te atender.</p>
+          <div class="space-y-6 mt-9">
+            <div><b>⌖ &nbsp; Endereço:</b><p class="text-stone-600 ml-7">Rua dos Acácias, 172<br>Centro, Campo Grande - MS</p></div>
+            <div><b>☎ &nbsp; Telefone</b><p class="text-stone-600 ml-7">(67) 4000-1234</p></div>
+            <div><b>◷ &nbsp; Horário de Funcionamento</b><p class="text-stone-600 ml-7">Seg - Sex: 7h às 21h<br>Sáb - Dom: 8h às 22h</p></div>
+          </div>
+          <form onsubmit="sendContact(event)" class="mt-9 space-y-3">
+            <input required class="w-full border rounded-lg px-4 py-3 bg-white" placeholder="Nome">
+            <input required type="email" class="w-full border rounded-lg px-4 py-3 bg-white" placeholder="E-mail">
+            <textarea required rows="4" class="w-full border rounded-lg px-4 py-3 bg-white resize-none" placeholder="Mensagem"></textarea>
+            <button class="w-full bg-[#d99a55] hover:bg-[#c98b49] text-white rounded-lg py-3 font-semibold transition">Enviar Mensagem</button>
+            <p id="contactMsg" class="text-sm text-green-700"></p>
+          </form>
+        </div>
+        <img class="w-full h-full min-h-[420px] object-cover" src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=1200&q=85" alt="Fachada da cafeteria">
+      </div>
+    </section>
+
+    <!-- CARRINHO -->
+    <section id="cart" class="page">
+      <div class="max-w-4xl mx-auto px-5 py-12">
+        <h1 class="font-serif text-4xl">Seu Carrinho</h1>
+        <p class="text-stone-500 mt-1">Confira seus itens e finalize seu pedido.</p>
+        <div id="cartItems" class="mt-8 divide-y"></div>
+        <div class="mt-7 flex gap-2">
+          <input id="coupon" class="border rounded-lg px-4 py-3 flex-1 uppercase" placeholder="Cupom (ex: NOBRE10)">
+          <button onclick="applyCoupon()" class="bg-[#2b150b] hover:bg-[#402116] text-white rounded-lg px-5 transition">Aplicar</button>
+        </div>
+        <div class="border-t mt-6 pt-5 flex justify-between font-semibold text-lg">
+          <span>Total</span>
+          <span id="cartTotal">R$ 0,00</span>
+        </div>
+        <button onclick="checkout()" class="w-full bg-[#2b150b] hover:bg-[#402116] text-white rounded-lg py-3.5 mt-5 font-medium transition shadow-md">Continuar para o Checkout</button>
+      </div>
+    </section>
+
+    <!-- CHECKOUT -->
+    <section id="checkout" class="page">
+      <div class="max-w-5xl mx-auto px-5 py-10">
+        <h1 class="font-serif text-4xl">Finalizar Pedido</h1>
+        <p class="text-xs text-stone-500 mt-2">Carrinho &nbsp;›&nbsp; <b class="text-stone-800">Checkout</b> &nbsp;›&nbsp; Confirmação</p>
+        
+        <div class="grid md:grid-cols-[1.4fr_.8fr] gap-8 mt-8">
+          <form id="checkoutForm" onsubmit="confirmOrder(event)" class="space-y-7">
+            <div>
+              <h2 class="font-semibold mb-3 text-lg border-b pb-2">Dados Pessoais</h2>
+              <div class="grid gap-3 mt-3">
+                <input required id="c_nome" class="border rounded px-3 py-2.5" placeholder="Nome completo">
+                <input required id="c_email" type="email" class="border rounded px-3 py-2.5" placeholder="E-mail">
+                <input required id="c_tel" class="border rounded px-3 py-2.5" placeholder="Telefone">
+              </div>
+            </div>
+
+            <div>
+              <h2 class="font-semibold mb-3 text-lg border-b pb-2">Endereço de Entrega</h2>
+              <div class="grid grid-cols-2 gap-3 mt-3">
+                <input required id="c_cep" class="border rounded px-3 py-2.5 col-span-2" placeholder="CEP">
+                <input required id="c_rua" class="border rounded px-3 py-2.5 col-span-2" placeholder="Rua">
+                <input required id="c_num" class="border rounded px-3 py-2.5" placeholder="Número">
+                <input id="c_comp" class="border rounded px-3 py-2.5" placeholder="Complemento">
+                <input required id="c_bairro" class="border rounded px-3 py-2.5" placeholder="Bairro">
+                <input required id="c_cidade" class="border rounded px-3 py-2.5" placeholder="Cidade">
+              </div>
+            </div>
+
+            <div id="emailPedidoAviso"></div>
+
+            <button type="submit" class="md:hidden w-full bg-[#2b150b] hover:bg-[#402116] text-white py-3.5 rounded-lg font-semibold transition">
+              Abrir e-mail com pedido
+            </button>
+          </form>
+
+          <aside class="bg-white border rounded-xl p-5 h-fit shadow-sm">
+            <h2 class="font-semibold text-lg border-b pb-2">Resumo do Pedido</h2>
+            <div id="checkoutItems" class="my-5 space-y-3"></div>
+            <div class="space-y-2 text-sm border-t pt-4">
+              <div class="flex justify-between text-stone-600"><span>Subtotal</span><span id="summarySubtotal"></span></div>
+              <div class="flex justify-between text-stone-600"><span>Entrega</span><span>R$ 5,00</span></div>
+              <div class="flex justify-between font-bold text-base border-t pt-2 mt-2 text-stone-900"><span>Total</span><span id="summaryTotal"></span></div>
+            </div>
+            <button onclick="document.getElementById('checkoutForm').requestSubmit()" class="hidden md:block w-full bg-[#2b150b] hover:bg-[#402116] text-white py-3.5 rounded-lg font-semibold mt-5 transition shadow-md">
+              Enviar Pedido por E-mail
+            </button>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONFIRMAÇÃO -->
+    <section id="confirmation" class="page">
+      <div class="confirm-bg min-h-[calc(100vh-64px)] flex items-center justify-center text-center text-white px-5">
+        <div>
+          <div class="mx-auto w-20 h-20 rounded-full bg-[#efc287] text-[#28140a] flex items-center justify-center text-4xl shadow-lg">✓</div>
+          <h1 class="font-serif text-4xl md:text-5xl mt-5">E-mail Preparado!</h1>
+          <p class="mt-3 text-white/85 max-w-md mx-auto">Seu aplicativo de e-mail foi acionado com os dados do seu pedido.<br>Revise as informações e clique em <b>Enviar</b> no seu cliente de e-mail.</p>
+          <p class="mt-7 text-sm text-stone-300">Número do pedido</p>
+          <p id="orderNumber" class="font-serif text-2xl text-[#efc287] font-bold">#GN123456</p>
+          <button onclick="showPage('home')" class="mt-7 bg-[#efc287] hover:bg-[#f3cb98] text-[#28140a] rounded-lg px-7 py-3 font-semibold transition">Voltar para o início</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 404 NOT FOUND -->
+    <section id="notfound" class="page">
+      <div class="notfound-bg min-h-[calc(100vh-64px)] flex items-center justify-center text-center text-white px-5">
+        <div>
+          <div class="font-serif text-8xl md:text-9xl text-[#f2dfc2]">404</div>
+          <h1 class="font-serif text-3xl md:text-4xl mt-2">Página não encontrada</h1>
+          <p class="mt-3 text-white/75">Opa! Parece que esta página não existe.</p>
+          <button onclick="showPage('home')" class="mt-7 bg-[#efc287] text-[#28140a] rounded-lg px-7 py-3 font-semibold">Voltar para o início</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-[#120a06] text-stone-400 border-t border-[#26160d]">
+    <div class="max-w-6xl mx-auto px-5 py-9 flex flex-col md:flex-row gap-5 justify-between">
+      <div>
+        <p class="font-serif text-white text-lg">Grão <span class="text-[#e7b56f]">Nobre</span></p>
+        <p class="text-sm mt-2">Café especial. Momentos memoráveis.</p>
+      </div>
+      <p class="text-xs md:self-end">© 2026 Grão Nobre — Todos os direitos reservados</p>
+    </div>
+  </footer>
+
+  <script>
+    // Endereço configurado da cafeteria para envio do pedido
+    const EMAIL_DA_CAFETERIA = 'pedidos@graonobre.com';
+
+    const products = [
+      { id: 1, name: 'Espresso', price: 7.00, img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?auto=format&fit=crop&w=700&q=80', cat: 'Cafés' },
+      { id: 2, name: 'Cappuccino', price: 11.00, img: 'https://images.unsplash.com/photo-1534778101976-62847782c213?auto=format&fit=crop&w=700&q=80', cat: 'Cafés' },
+      { id: 3, name: 'Latte Caramelo', price: 14.90, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=700&q=80', cat: 'Bebidas' },
+      { id: 4, name: 'Café Gelado', price: 13.50, img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=700&q=80', cat: 'Bebidas' },
+      { id: 5, name: 'Mocha', price: 13.90, img: 'https://images.unsplash.com/photo-1578374173705-969cbe6f2d6b?auto=format&fit=crop&w=700&q=80', cat: 'Cafés' },
+      { id: 6, name: 'Macchiato', price: 10.00, img: 'https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=700&q=80', cat: 'Cafés' },
+      { id: 7, name: 'Croissant', price: 8.00, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=700&q=80', cat: 'Lanches' },
+      { id: 8, name: 'Cheesecake', price: 12.50, img: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=700&q=80', cat: 'Doces' },
+      { id: 9, name: 'Cookie de Chocolate', price: 7.50, img: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=700&q=80', cat: 'Doces' }
+    ];
+
+    const gallery = [
+      ['Ambiente', 'https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=900&q=80'],
+      ['Cafés', 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80'],
+      ['Lanches', 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=900&q=80'],
+      ['Doces', 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=80'],
+      ['Grãos', 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=900&q=80'],
+      ['Cafés', 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80'],
+      ['Ambiente', 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&q=80'],
+      ['Doces', 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=900&q=80'],
+      ['Cafés', 'https://images.unsplash.com/photo-1511081692775-05d0f180a065?auto=format&fit=crop&w=900&q=80']
+    ];
+
+    let cart = [], discount = 0;
+    try { cart = JSON.parse(localStorage.getItem('graoNobreCart') || '[]'); } catch (_) { cart = []; }
+    cart = cart.filter(i => products.some(p => p.id === i.id) && Number.isInteger(i.qty) && i.qty > 0);
+
+    const money = n => 'R$ ' + n.toFixed(2).replace('.', ',');
+
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById(id) || document.getElementById('notfound');
+      target.classList.add('active');
+      
+      document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active', n.dataset.nav === id));
+      document.getElementById('mobileMenu').classList.add('hidden');
+      window.scrollTo(0, 0);
+      
+      if (id === 'cart') renderCart();
+      if (id === 'checkout') renderCheckout();
+    }
+
+    function toggleMobile() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+
+    // Adicionar item ao carrinho com Animação e Efeito Visual
+    function addToCart(id, btnElement) {
+      let item = cart.find(i => i.id === id);
+      item ? item.qty++ : cart.push({ id, qty: 1 });
+      saveCart();
+
+      // Feedback visual no botão
+      if (btnElement) {
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '✓';
+        btnElement.classList.add('bg-green-700');
+        setTimeout(() => {
+          btnElement.innerHTML = originalText;
+          btnElement.classList.remove('bg-green-700');
+        }, 800);
+      }
+
+      // Animação no badge do carrinho
+      const badge = document.getElementById('cartBadge');
+      badge.classList.remove('cart-badge-bounce');
+      void badge.offsetWidth; // Trigger reflow
+      badge.classList.add('cart-badge-bounce');
+    }
+
+    function saveCart() {
+      try { localStorage.setItem('graoNobreCart', JSON.stringify(cart)); } catch (_) {}
+      document.getElementById('cartBadge').textContent = cart.reduce((s, i) => s + i.qty, 0);
+    }
+
+    function renderProducts(cat = 'Todos') {
+      let list = cat === 'Todos' ? products : products.filter(p => p.cat === cat);
+      document.getElementById('productGrid').innerHTML = list.map(p => `
+        <article class="bg-white rounded-xl overflow-hidden border border-stone-200 group shadow-sm hover:shadow-md transition">
+          <div class="overflow-hidden">
+            <img class="card-img w-full group-hover:scale-105 transition duration-300" src="${p.img}" alt="${p.name}">
+          </div>
+          <div class="p-3 md:p-4">
+            <div class="flex justify-between items-end gap-2">
+              <div>
+                <h3 class="font-serif text-lg leading-tight">${p.name}</h3>
+                <p class="font-semibold text-sm text-[#8b4a24] mt-1">${money(p.price)}</p>
+              </div>
+              <button onclick="addToCart(${p.id}, this)" class="btn-add-cart w-9 h-9 rounded-full bg-[#2b150b] text-white flex items-center justify-center font-bold text-lg" title="Adicionar ao carrinho">+</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderFilters() {
+      let cats = ['Todos', 'Cafés', 'Bebidas', 'Lanches', 'Doces'];
+      document.getElementById('filters').innerHTML = cats.map((c, i) => `
+        <button onclick="selectFilter(this,'${c}')" class="filter-btn px-4 py-2 rounded-full text-sm border transition ${i === 0 ? 'bg-[#2b150b] text-white' : 'bg-white hover:bg-stone-100'}">${c}</button>
+      `).join('');
+    }
+
+    function selectFilter(btn, cat) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn px-4 py-2 rounded-full text-sm border bg-white hover:bg-stone-100 transition');
+      btn.className = 'filter-btn px-4 py-2 rounded-full text-sm border bg-[#2b150b] text-white transition';
+      renderProducts(cat);
+    }
+
+    function renderFeatured() {
+      document.getElementById('featured').innerHTML = products.slice(0, 3).map(p => `
+        <article class="relative overflow-hidden rounded-2xl h-72 group shadow-md">
+          <img src="${p.img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <div class="absolute bottom-0 p-5 text-white">
+            <h3 class="font-serif text-2xl">${p.name}</h3>
+            <p class="text-sm text-white/75">Feito na hora, do jeito que você gosta.</p>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderGallery(cat = 'Todos') {
+      let list = cat === 'Todos' ? gallery : gallery.filter(g => g[0] === cat);
+      document.getElementById('galleryGrid').innerHTML = list.map((g, i) => `
+        <div class="gallery-item overflow-hidden rounded-xl ${i === 0 ? 'md:row-span-2' : ''}">
+          <img class="gallery-img" src="${g[1]}" alt="${g[0]}">
+        </div>
+      `).join('');
+    }
+
+    function galleryFilter(btn, cat) {
+      document.querySelectorAll('.gallery-filter').forEach(b => b.className = 'gallery-filter px-4 py-2 rounded-full text-sm border bg-white hover:bg-stone-100 transition');
+      btn.className = 'gallery-filter px-4 py-2 rounded-full text-sm border bg-[#2b150b] text-white transition';
+      renderGallery(cat);
+    }
+
+    function renderGalleryFilters() {
+      let cats = ['Todos', 'Ambiente', 'Cafés', 'Lanches', 'Doces', 'Grãos'];
+      document.getElementById('galleryFilters').innerHTML = cats.map((c, i) => `
+        <button onclick="galleryFilter(this,'${c}')" class="gallery-filter px-4 py-2 rounded-full text-sm border ${i === 0 ? 'bg-[#2b150b] text-white' : 'bg-white hover:bg-stone-100'}">${c}</button>
+      `).join('');
+    }
+
+    function changeQty(id, d) {
+      let item = cart.find(i => i.id === id);
+      if (!item) return;
+      item.qty += d;
+      if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+      saveCart();
+      renderCart();
+    }
+
+    function removeItem(id) {
+      cart = cart.filter(i => i.id !== id);
+      saveCart();
+      renderCart();
+    }
+
+    function total() {
+      return cart.reduce((s, i) => {
+        let p = products.find(p => p.id === i.id);
+        return s + p.price * i.qty;
+      }, 0) * (1 - discount);
+    }
+
+    function renderCart() {
+      let box = document.getElementById('cartItems');
+      if (!cart.length) {
+        box.innerHTML = '<div class="py-12 text-center text-stone-500">Seu carrinho está vazio.<br><button onclick="showPage(\'menu\')" class="text-[#8b4a24] font-semibold underline mt-2">Ver cardápio</button></div>';
+      } else {
+        box.innerHTML = cart.map(i => {
+          let p = products.find(p => p.id === i.id);
+          return `
+            <div class="py-4 flex items-center gap-4">
+              <img src="${p.img}" class="w-16 h-16 rounded-lg object-cover">
+              <div class="flex-1">
+                <h3 class="font-semibold text-stone-800">${p.name}</h3>
+                <p class="text-sm text-stone-500">${money(p.price)}</p>
+              </div>
+              <div class="flex items-center border rounded-lg bg-stone-50">
+                <button class="px-3 py-1.5 hover:bg-stone-200 transition rounded-l-lg" onclick="changeQty(${i.id}, -1)">−</button>
+                <span class="px-3 font-medium">${i.qty}</span>
+                <button class="px-3 py-1.5 hover:bg-stone-200 transition rounded-r-lg" onclick="changeQty(${i.id}, 1)">+</button>
+              </div>
+              <button onclick="removeItem(${i.id})" class="text-stone-400 hover:text-red-600 text-xl font-bold px-2">×</button>
+            </div>
+          `;
+        }).join('');
+      }
+      document.getElementById('cartTotal').textContent = money(total());
+    }
+
+    function applyCoupon() {
+      let c = document.getElementById('coupon').value.trim().toUpperCase();
+      discount = c === 'NOBRE10' ? 0.10 : 0;
+      alert(discount ? 'Cupom NOBRE10 aplicado: 10% de desconto.' : 'Cupom inválido. Experimente NOBRE10.');
+      renderCart();
+    }
+
+    function checkout() {
+      if (!cart.length) {
+        alert('Adicione pelo menos um item ao carrinho.');
+        showPage('menu');
+        return;
+      }
+      showPage('checkout');
+    }
+
+    function renderCheckout() {
+      let sub = cart.reduce((s, i) => s + products.find(p => p.id === i.id).price * i.qty, 0) * (1 - discount);
+      document.getElementById('checkoutItems').innerHTML = cart.map(i => {
+        let p = products.find(p => p.id === i.id);
+        return `
+          <div class="flex items-center gap-3">
+            <img src="${p.img}" class="w-11 h-11 rounded object-cover">
+            <div class="flex-1 text-sm">
+              <b class="text-stone-800">${p.name}</b>
+              <p class="text-stone-500">Qtd. ${i.qty}</p>
+            </div>
+            <span class="text-sm font-semibold">${money(p.price * i.qty)}</span>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('summarySubtotal').textContent = money(sub);
+      document.getElementById('summaryTotal').textContent = money(sub + 5);
+    }
+
+    // CONFIRMAÇÃO E ENVIO DO PEDIDO VIA E-MAIL
+    function confirmOrder(e) {
+      e.preventDefault();
+      if (!cart.length) {
+        alert('Seu carrinho está vazio.');
+        showPage('menu');
+        return;
+      }
+
+      const nome = document.getElementById('c_nome').value.trim();
+      const email = document.getElementById('c_email').value.trim();
+      const telefone = document.getElementById('c_tel').value.trim();
+      const cep = document.getElementById('c_cep').value.trim();
+      const rua = document.getElementById('c_rua').value.trim();
+      const numero = document.getElementById('c_num').value.trim();
+      const complemento = document.getElementById('c_comp').value.trim();
+      const bairro = document.getElementById('c_bairro').value.trim();
+      const cidade = document.getElementById('c_cidade').value.trim();
+
+      const subtotal = cart.reduce((s, i) => s + products.find(p => p.id === i.id).price * i.qty, 0);
+      const subtotalComDesconto = subtotal * (1 - discount);
+
+      const pedido = cart.map(i => {
+        const p = products.find(p => p.id === i.id);
+        return `- ${p.name} | ${i.qty}x (${money(p.price)}) = ${money(p.price * i.qty)}`;
+      }).join('\n');
+
+      const identificador = '#GN' + Math.floor(100000 + Math.random() * 900000);
+      document.getElementById('orderNumber').textContent = identificador;
+
+      const assunto = `Novo Pedido ${identificador} - Grão Nobre`;
+      const mensagem = [
+        `PEDIDO ${identificador}`,
+        '---------------------------------------',
+        'DADOS DO CLIENTE',
+        `Nome: ${nome}`,
+        `E-mail: ${email}`,
+        `Telefone: ${telefone}`,
+        '',
+        'ENDEREÇO DE ENTREGA',
+        `Rua: ${rua}, Nº ${numero}`,
+        `Complemento: ${complemento || 'Não informado'}`,
+        `Bairro: ${bairro} - Cidade: ${cidade}`,
+        `CEP: ${cep}`,
+        '',
+        'ITENS DO PEDIDO',
+        pedido,
+        '---------------------------------------',
+        `Subtotal: ${money(subtotal)}`,
+        `Desconto: ${discount > 0 ? '10% (NOBRE10)' : 'Nenhum'}`,
+        `Entrega: R$ 5,00`,
+        `TOTAL DO PEDIDO: ${money(subtotalComDesconto + 5)}`
+      ].join('\n');
+
+      const mailto = `mailto:${EMAIL_DA_CAFETERIA}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(mensagem)}`;
+
+      // Abre a aplicação de e-mail do cliente
+      window.location.href = mailto;
+
+      // Exibe link alternativo caso o bloqueador de popups do navegador impeça
+      let aviso = document.getElementById('emailPedidoAviso');
+      aviso.innerHTML = `
+        <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+          <p class="font-semibold">Seu app de e-mail não abriu?</p>
+          <a href="${mailto}" target="_blank" class="underline text-[#8b4a24] font-bold mt-1 inline-block">Clique aqui para abrir o e-mail manualmente</a>
+        </div>
+      `;
+
+      // Limpa carrinho e navega para tela de sucesso
+      cart = [];
+      saveCart();
+      showPage('confirmation');
+    }
+
+    function sendContact(e) {
+      e.preventDefault();
+      document.getElementById('contactMsg').textContent = 'Mensagem enviada com sucesso! Entraremos em contato em breve.';
+      e.target.reset();
+    }
+
+    // Inicialização
+    renderFilters();
+    renderProducts();
+    renderFeatured();
+    renderGalleryFilters();
+    renderGallery();
+    saveCart();
+    showPage('home');
+  </script>
+</body>
+
+</html>
